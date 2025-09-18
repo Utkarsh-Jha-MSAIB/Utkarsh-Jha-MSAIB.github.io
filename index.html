@@ -815,6 +815,20 @@
   </style>
 </head>
 <body>
+  <script>
+  (function () {
+    const q = new URLSearchParams(location.search);
+    if (q.get('view') === 'portfolio') {
+      document.documentElement.classList.add('skip-splash'); // hide intro
+      // Optional: clean the URL (no reload)
+      history.replaceState(null, '', 'index.html');
+      // Guarantee top of page (no anchor jump)
+      try { history.scrollRestoration = 'manual'; } catch(e) {}
+      window.scrollTo(0, 0);
+    }
+  })();
+  </script>
+
 <!-- Splash / Intro -->
 <section id="splash" aria-labelledby="gateName" aria-describedby="gateAbout">
   <!-- Background layer -->
