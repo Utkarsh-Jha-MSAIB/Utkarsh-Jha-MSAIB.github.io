@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Name – Portfolio</title>
+  <style>
+    :root{--bg:#141414;--ink:#fff;--muted:#d0d0d0;--accent:#e50914}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+
+    /* Header */
+    .nx-header{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(315deg,#4a001f 0%, #860038 60%, #a10e4d 100%);
+      border-bottom: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+      /* If you want a Fordham photo under the gradient, uncomment:
+      background-image:
+        linear-gradient(135deg,rgba(74,0,31,.92) 0%, rgba(134,0,56,.92) 60%, rgba(161,14,77,.92) 100%),
+        url("assets/fordham-header.jpg");
+      background-size: cover; background-position: center;
+      */
+    }
+    .bar{display:flex;align-items:center;justify-content:space-between;height:52px;max-width:1280px;margin:0 auto;padding:0 16px}
+    /* White wordmark (remove gradient text) */
+    .nx-logo{
+      font-weight:1000;
+      font-size:20px;
+      color:#fff;                 /* solid white */
+      -webkit-text-fill-color:#fff;
+      background:none;
+      -webkit-background-clip:initial;
+      background-clip:initial;
+      text-shadow:0 1px 0 rgba(0,0,0,.4);
+    }
+
+    /* Keep nav links white on the maroon header */
+    .nx-nav a{
+      margin-left:18px;
+      font-size:14px;
+      color:#fff;
+      opacity:.95;
+    }
+    .nx-nav a:hover{ opacity:1 }
+
+    /* Hero */
+    .nx-hero{position:relative;min-height:60vh;display:flex;align-items:flex-end;padding:40px 20px}
+    .nx-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.40) 0%, rgba(20,20,20,1) 100%);z-index:1}
+    .hero-bg{position:absolute;inset:0;background-position:center;background-size:cover;z-index:0;pointer-events:none}
+    .hero-inner{position:relative;z-index:2;max-width:820px}
+    .hero-inner h1{font-size:clamp(26px,3.2vw,44px);margin:0 0 8px;font-weight:900}
+    .hero-inner p{font-size:15px;line-height:1.4;color:#e5e5e5}
+    .nx-btns{display:flex;gap:12px;margin-top:16px}
+    .nx-btn{border:none;padding:10px 16px;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px}
+    .nx-btn.primary{background:linear-gradient(135deg,#a10e4d 0%,#860038 55%,#4a001f 100%);color:#fff}
+    .nx-btn.secondary{background:rgba(109,109,110,.7);color:#fff}
+    .hero-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:none;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;z-index:4;display:grid;place-items:center}
+    .hero-arrow:hover{background:rgba(0,0,0,.55)}
+    .hero-arrow.left{left:8px}
+    .hero-arrow.right{right:8px}
+
+    /* Sections / Rows */
+    .nx-section{padding:8px 0 30px;position:relative;z-index:1}
+    .nx-wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+    .nx-row{position:relative}
+    .nx-row h3{margin:0 0 12px;font-size:20px;font-weight:800}
+    /* container that holds fixed arrows + the scroll viewport */
+    .nx-trackWrap{ position:relative; overflow:visible; }
+
+    /* the actual scrollable viewport (inside the wrap) */
+    .nx-viewport{
+      overflow:auto;
+      scroll-snap-type:x mandatory;
+      scrollbar-width:none;
+      scroll-padding-inline:56px;       /* keep first/last tiles clear of arrows */
+    }
+    .nx-viewport::-webkit-scrollbar{ display:none }
+
+    .nx-trackWrap::-webkit-scrollbar{ display:none }  /* hide WebKit bar */
+    /* direct children are cards; add side padding so arrows don't cover edges */
+    /* track stays simple flex row */
+    .nx-track{
+      display:flex;
+      gap:12px;
+      padding:0 56px;                   /* breathing room under arrows */
+    }
+    .nx-page{flex:0 0 100%;display:flex;gap:12px;padding-bottom:6px}
+
+    /* 5-up tiles */
+    .nx-poster{position:relative;flex:0 0 auto;width:calc((100% - 12px*4)/5);height:146px;border-radius:10px;overflow:hidden;background:#000;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease}
+    .nx-poster:hover{transform:scale(1.05);box-shadow:0 10px 28px rgba(0,0,0,.55)}
+    .nx-poster img{width:100%;height:100%;object-fit:cover;display:block}
+    .nx-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.85) 100%);display:flex;align-items:flex-end;padding:6px;font-size:13px}
+
+    /* arrows are anchored to the wrap, NOT the viewport */
+    .nx-arrow{
+      position:absolute; top:50%; transform:translateY(-50%);
+      width:42px; height:42px; border-radius:50%;
+      display:grid; place-items:center; z-index:5;
+      color:#fff; background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow:0 8px 20px rgba(0,0,0,.45);
+      backdrop-filter:blur(6px);
+    }
+    .nx-arrow:hover{ background:rgba(0,0,0,.75) }
+    .nx-arrow.left{ left:8px }
+    .nx-arrow.right{ right:8px }
+    .nx-arrow[disabled]{ opacity:.35; pointer-events:none }
+
+    /* Modals */
+    .nx-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:80}
+    .nx-modal.open{display:flex}
+
+    /* Show only captions */
+    #infoTitle, #infoDesc { display:none; }
+    .nx-media{aspect-ratio:16/9;position:relative;background:#000;display:grid;place-items:center}
+    .nx-media video{width:auto!important;height:auto!important;max-width:90%;max-height:70vh;border-radius:10px;}
+    .nx-body{padding:16px}
+    .nx-close{position:absolute;top:10px;right:10px;background:#333;color:#fff;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;z-index:3;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.6)}
+    #modal .nx-close{
+      position: fixed; top: 12px; right: 12px; z-index: 2147483647;
+      background: linear-gradient(135deg,#a10e4d 0%,#860038 60%,#4a001f 100%);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 50%;
+      box-shadow: 0 8px 20px rgba(0,0,0,.45), 0 0 0 1px rgba(134,0,56,.35);
+    }
+
+
+    /* Mobile: row of chips */
+    @media (max-width:820px){
+      #infoThumbs{ grid-column:1; grid-row:3; flex-direction:row; gap:10px; padding:10px;
+                  border-right:none; border-top:1px solid rgba(255,255,255,.10); }
+      #infoThumbs .t{ width:150px; height:72px; }
+    }
+
+    #infoModal .nx-body{ grid-column:1; grid-row:1 / span 2; }  /* left rail */
+    #infoMedia{ grid-column:2; grid-row:1; }                    /* big poster */
+    #infoCaption{ grid-column:2; grid-row:2; }                  /* caption */
+
+
+    footer{background:#000;color:#777;text-align:center;padding:20px;font-size:14px}
+
+    /* Intro splash */
+    #splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #141414; /* fallback color if no image */
+      z-index: 200;
+    }
+    #splash .login-bg {
+      position: absolute;
+      inset: 0;
+      background: url("assets/login-bg.jpg") center/cover no-repeat;
+      filter: brightness(0.6); /* darken so text is readable */
+      z-index: 0;
+    }
+    /* Fordham maroon ring glow + subtle glass gloss */
+    .gate-card{
+      position:relative; z-index:1; overflow:hidden;
+      padding:24px; border-radius:20px; text-align:center;
+
+      /* shinier, more transparent glass */
+      background: rgba(20,20,20,.16);
+      border: 1px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(20px) saturate(170%) contrast(108%);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) contrast(108%);
+
+      /* include a RING at the border: 0 0 0 Xpx */
+      box-shadow:
+        0 6px 24px rgba(0,0,0,.60),             /* base drop */
+        0 0 0 1px rgba(134,0,56,.40),           /* <- border ring glow */
+        0 0 24px rgba(134,0,56,.28);            /* ambient maroon haze */
+
+      animation: bgPulse 3.2s ease-in-out infinite alternate;
+    }
+    /* let the outer halo be visible */
+    .gate-card{ position:relative; overflow:visible; }
+
+    /* animated maroon ring outside the border */
+    .gate-card::after{
+      content:""; position:absolute; inset:-2px;     /* sit just outside the border */
+      border-radius:22px; pointer-events:none;
+      box-shadow:
+        0 0 0 1px rgba(134,0,56,.45),               /* crisp ring on the edge */
+        0 0 24px rgba(134,0,56,.26);                 /* soft halo */
+      animation:ringPulse 3s ease-in-out infinite alternate;
+    }
+
+    /* ring animation (Fordham maroon) */
+    @keyframes ringPulse{
+      0%{
+        box-shadow:
+          0 0 0 1px rgba(134,0,56,.45),
+          0 0 20px rgba(134,0,56,.22);
+      }
+      100%{
+        box-shadow:
+          0 0 0 3px rgba(134,0,56,.70),
+          0 0 44px rgba(134,0,56,.36);
+      }
+    }
+
+
+    /* static top gloss for the Apple-like shine (no motion) */
+    .gate-card::before{
+      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,.22) 0%,
+        rgba(255,255,255,.08) 38%,
+        transparent 60%);
+    }
+
+    /* pulse both the ring thickness and the outer haze */
+    @keyframes bgPulse{
+      0%{
+        box-shadow:
+          0 6px 24px rgba(0,0,0,.60),
+          0 0 0 1px rgba(134,0,56,.40),   /* thinner ring */
+          0 0 24px rgba(134,0,56,.28);
+      }
+      100%{
+        box-shadow:
+          0 8px 28px rgba(0,0,0,.75),
+          0 0 0 2px rgba(134,0,56,.60),   /* thicker/brighter ring */
+          0 0 40px rgba(134,0,56,.38);
+      }
+    }
+
+    #splash {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gate-avatar{width:150px;height:150px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.16)}
+    .gate-name{margin:14px 0 4px;font-size:28px;font-weight:900}
+    .gate-tagline{margin:0;color:#cfcfcf;font-size:14px;text-transform:uppercase}
+    .gate-about{margin:14px auto 18px;color:#dadada;max-width:560px;line-height:1.6}
+    /* Base small buttons */
+    .gate-btn { position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:8px; background:#2d2d2d; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:400; font-size:14px; cursor:pointer; transition:background .3s ease, transform .2s ease; isolation:isolate; }
+    .gate-btn:hover { background:#444; transform:translateY(-1px); }
+
+    /* Shine only on small buttons (not the Enter button) */
+    .gate-btn:not(.enter-btn)::after { content:""; position:absolute; top:0; left:-75%; width:50%; height:100%; background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent); transform:skewX(-25deg); pointer-events:none; }
+    .gate-btn:not(.enter-btn):hover::after { animation:shine .9s ease forwards; }
+    @keyframes shine { 100% { left:125%; } }
+
+    /* Intro splash footer outside the card */
+    .splash-meta{
+      position:absolute;
+      bottom: max(18px, env(safe-area-inset-bottom) + 12px);
+      right:  max(18px, env(safe-area-inset-right) + 12px);
+      left: auto;                 /* was left:50% */
+      transform: none;            /* was translateX(-50%) */
+      z-index: 1;
+
+      display:flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      color:#eaeaea;
+      background:rgba(20,20,20,.55);
+      border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(8px);
+    }
+    .splash-meta .loc{ display:inline-flex; align-items:center; gap:6px; }
+
+    .splash-footer{
+      position:fixed; left:0; right:0; bottom:12px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 16px; z-index:201; pointer-events:none;
+    }
+    .splash-footer .splash-social,
+    .splash-footer .splash-location{ pointer-events:auto; }
+
+    .splash-footer a{
+      color:#fff; text-decoration:none; opacity:.92;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    .splash-footer a:hover{ opacity:1; }
+    .splash-location{
+      display:inline-flex; align-items:center; gap:6px;
+      color:#fff; opacity:.92;
+    }
+
+
+
+    /* Primary CTA */
+    .enter-btn{position:relative;overflow:hidden;background:linear-gradient(135deg,#a10e4d 0%,#860038 55%,#4a001f 100%);color:#fff;border:none;padding:14px 22px;border-radius:30px;font-weight:800;font-size:16px;cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;}
+    .enter-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(255,255,255,.4); }
+    /* (Optional) explicitly disable shine on Enter just in case */
+    .enter-btn::after { content:none; }
+
+    #infoModal .nx-body{min-height:0!important;overflow:hidden!important}#infoThumbs{height:calc(4*84px + 3*12px + 28px)!important;overflow-y:auto!important}#infoThumbs .t{flex:0 0 84px!important}
+
+
+    /* Left rail spans full height and gets Fordham gradient + stripe */
+    #infoThumbs{
+      grid-column: 1 !important;
+      grid-row: 1 / span 3 !important;
+      background:
+        linear-gradient(180deg, #1a0b12 0%, #1f0b15 25%, #2a0d1b 60%, #2f0e1f 100%),
+        linear-gradient(90deg, rgba(134,0,56,.28), rgba(134,0,56,0));
+      border-right: 1px solid rgba(255,255,255,.10);
+      box-shadow: inset 4px 0 0 rgba(134,0,56,.18);
+    }
+
+    /* Thumb tiles: slightly larger, crisper hover, Fordham active glow */
+    #infoThumbs .t{
+      height: 88px !important;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #111;
+    }
+    #infoThumbs .t:hover{
+      transform: translateY(-1px) scale(1.01);
+      border-color: rgba(255,255,255,.22);
+      box-shadow: 0 8px 22px rgba(0,0,0,.35);
+    }
+    #infoThumbs .t.active{
+      border-color: rgba(134,0,56,.9);
+      box-shadow:
+        0 0 0 2px rgba(134,0,56,.35),
+        0 12px 30px rgba(0,0,0,.45);
+    }
+
+    /* ===== Sticky header (right column, row 1) ===== */
+    #infoHeader{
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background:
+        linear-gradient(180deg, rgba(20,20,20,.95), rgba(20,20,20,.80));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,.04),
+        0 10px 28px rgba(0,0,0,.35);
+    }
+    #infoHeader .title-wrap{
+      display:flex; align-items:baseline; gap:10px; min-width:0;
+    }
+    #infoHeader .eyebrow{
+      font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+      color: #d9bfc8; opacity:.9;
+    }
+    #infoHeader #infoTitle{
+      display: block !important;        /* override previous hide */
+      margin: 0; padding: 0;
+      font-size: 18px; font-weight: 800;
+      color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #infoHeader .slide-indicator{
+      font-weight: 700; font-size: 12px;
+      padding: 6px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(135deg,#a10e4d 0%,#860038 60%,#4a001f 100%);
+    }
+
+    /* ===== Media area (right column, row 2) ===== */
+    #infoMedia{ grid-column: 2; grid-row: 2; }
+
+    /* Wrap inside media so we can overlay title + centered caption */
+    .media-wrap{ position: relative; display:grid; place-items:center; }
+    .media-wrap img, .media-wrap video{
+      max-width: 92% !important;
+      max-height: 76vh !important;
+      border-radius: 10px !important;
+    }
+
+    /* Small title pill on the image (top-left) */
+    .media-title{
+      position: absolute; top: 14px; left: 14px;
+      padding: 6px 10px; font-size: 12px; font-weight: 800;
+      border-radius: 999px;
+      background: rgba(20,20,20,.60);
+      border: 1px solid rgba(255,255,255,.20);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Centered caption over the image */
+    .media-caption{
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      max-width: min(80%, 820px);
+      text-align: center; line-height: 1.5;
+      color: #fff; font-size: 15px; font-weight: 600;
+      padding: 10px 14px; border-radius: 14px;
+      background: linear-gradient(180deg, rgba(20,20,20,.65), rgba(20,20,20,.35));
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: 0 8px 26px rgba(0,0,0,.45), 0 0 24px rgba(134,0,56,.30);
+    }
+
+    /* Keep description hidden if you don’t need it in the body */
+    #infoDesc{ display:none !important; }
+
+    /* Mobile adjustments */
+    @media (max-width: 820px){
+      #infoModal .nx-dialog{
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto auto 1fr auto !important; /* header, rail, media, (footer row) */
+      }
+      #infoThumbs{
+        grid-column: 1 !important; grid-row: 2 !important;
+        flex-direction: row; gap: 10px; padding: 10px;
+        height: auto !important; max-height: 28vh !important;
+        border-right: none; border-top: 1px solid rgba(255,255,255,.10);
+        box-shadow: inset 0 4px 0 rgba(134,0,56,.14);
+      }
+      #infoMedia{ grid-column: 1; grid-row: 3; }
+      .media-title{ top: 10px; left: 10px; }
+    }
+
+
+    /* Left rail: subtle Fordham gradient + active glow */
+    #infoThumbs{
+      background:
+        linear-gradient(180deg,#1a0b12 0%, #2a0d1b 60%, #2f0e1f 100%),
+        linear-gradient(90deg, rgba(134,0,56,.24), rgba(134,0,56,0));
+      box-shadow:inset 4px 0 0 rgba(134,0,56,.16);
+    }
+    #infoThumbs .t.active{
+      border-color:rgba(134,0,56,.9);
+      box-shadow:0 0 0 2px rgba(134,0,56,.35), 0 12px 30px rgba(0,0,0,.45);
+    }
+
+    /* Main media gets its own framed glow */
+    #infoMedia{ display:grid; place-items:center; padding:14px; }
+    .media-frame{
+      position:relative;
+      border-radius:12px; overflow:hidden; background:#000;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:
+        0 8px 28px rgba(0,0,0,.55),
+        0 0 0 1px rgba(134,0,56,.35),
+        0 0 24px rgba(134,0,56,.22);
+    }
+    .media-frame::after{
+      content:""; position:absolute; inset:-2px; border-radius:14px; pointer-events:none;
+      box-shadow:0 0 0 1px rgba(134,0,56,.45), 0 0 24px rgba(134,0,56,.26);
+      animation:ringPulse 3s ease-in-out infinite alternate;
+    }
+
+    .media-frame img, .media-frame video{
+      display:block; max-width:92%; max-height:72vh; margin:auto;
+      border-radius:8px;
+    }
+
+    /* MAROON CAPTION PILL — bottom by default */
+    .media-caption{
+      position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
+      max-width:min(86%,820px); text-align:center; line-height:1.5;
+      color:#fff; font-size:14px; font-weight:700;
+      padding:8px 12px; border-radius:12px;
+      background:linear-gradient(135deg,#a10e4d 0%,#860038 60%,#4a001f 100%);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 10px 24px rgba(0,0,0,.45);
+    }
+
+    /* Toggle caption to TOP by adding class "caption-top" on #infoModal */
+    #infoModal.caption-top .media-caption{ top:12px; bottom:auto; }
+
+    /* Hide any old title/caption blocks inside body */
+    #infoTitle, #infoDesc, #infoCaption{ display:none !important; }
+
+    /* =========================
+      INFO MODAL — FINAL LAYOUT
+      - Left rail (thumbs) with true footer title
+      - Right panel: caption IN the box (top), then media
+      - Even 1px border on media, Fordham ring
+      - Lock background scroll
+      ========================= */
+
+    #infoModal{ padding:3vh 3vw; z-index:9999; overscroll-behavior:contain; }
+    #infoModal .nx-dialog{
+      display:grid;
+      grid-template-columns:260px 1fr;
+      grid-template-rows:1fr;
+      width:min(1150px,96vw); height:min(86vh,900px);
+      overflow:hidden; position:relative;
+      background:rgba(12,12,12,.96);
+      border-radius:16px;
+      backdrop-filter:blur(16px) saturate(140%);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 18px 52px rgba(0,0,0,.6), 0 0 0 1px rgba(134,0,56,.35), 0 0 32px rgba(134,0,56,.22);
+      animation:ringPulse 3s ease-in-out infinite alternate;
+    }
+
+    /* one close button */
+    #infoModal .nx-close{
+      position:absolute; top:10px; right:10px; z-index:5;
+      width:34px; height:34px; border-radius:999px;
+      background:#151515; color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 8px 20px rgba(0,0,0,.45);
+    }
+
+    /* LEFT COLUMN is the .nx-body container */
+    #infoModal .nx-body{
+      grid-column:1; grid-row:1;
+      display:flex; flex-direction:column;
+      padding:0; min-height:0; /* allow child to scroll */
+      background:
+        linear-gradient(180deg,#1a0b12 0%, #2a0d1b 60%, #2f0e1f 100%),
+        linear-gradient(90deg, rgba(134,0,56,.22), rgba(134,0,56,0));
+      border-right:1px solid rgba(255,255,255,.10);
+      box-shadow:inset 4px 0 0 rgba(134,0,56,.16);
+    }
+
+    /* Thumbs list INSIDE the left column */
+    #infoThumbs{
+      flex:1 1 auto;
+      overflow:auto; padding:14px;
+      scroll-snap-type:y proximity; overscroll-behavior:none;  /* stops page scroll bleed */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+              mask-image: linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+    }
+    /* pretty scrollbar */
+    #infoThumbs{ scrollbar-width:thin; scrollbar-color:rgba(134,0,56,.55) transparent; }
+    #infoThumbs::-webkit-scrollbar{ width:8px }
+    #infoThumbs::-webkit-scrollbar-thumb{ background:rgba(134,0,56,.55); border-radius:8px }
+    #infoThumbs::-webkit-scrollbar-track{ background:transparent }
+
+    #infoThumbs .t{
+      position:relative; height:88px; border-radius:14px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      background:#0f0f0f; cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      scroll-snap-align:start;
+    }
+    #infoThumbs .t:hover{ transform:translateY(-1px) scale(1.01); border-color:rgba(255,255,255,.22); }
+    #infoThumbs .t.active{ border-color:rgba(134,0,56,.9); box-shadow:0 0 0 2px rgba(134,0,56,.35), 0 12px 30px rgba(0,0,0,.45); }
+    #infoThumbs .t img{ width:100%; height:100%; object-fit:cover; display:block; }
+    #infoThumbs .t .badge{
+      position:absolute; top:8px; left:8px; width:24px; height:24px; border-radius:999px;
+      display:grid; place-items:center; font-size:12px; font-weight:800; color:#fff;
+      background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.25);
+    }
+
+    /* TRUE footer below the scroll area (not overlaying) */
+    #railFooter{
+      flex:0 0 auto;
+      padding:12px; border-top:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(10,10,10,.85) 0%, rgba(10,10,10,.95) 100%);
+    }
+    #railFooter .rail-title{
+      color:#860038; font-weight:900; letter-spacing:.02em;
+      font-size:14px; line-height:1.35; margin:0 0 6px 0;
+      white-space:normal; word-break:break-word; overflow-wrap:anywhere; /* show ALL text */
+    }
+    #railFooter .rail-count{
+      display:inline-block; color:#fff; font-weight:800; font-size:12px;
+      padding:4px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14); background:rgba(134,0,56,.18);
+    }
+
+    /* RIGHT COLUMN: caption bar INSIDE the box, left-aligned */
+    #infoMedia{
+      grid-column:2; grid-row:1;
+      display:grid; place-items:center; padding:14px;
+    }
+    .media-frame{
+      width:92%;
+      display:flex; flex-direction:column;
+      background:#000; border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);              /* even physical border */
+      box-shadow:0 0 0 1px rgba(134,0,56,.30), 0 10px 28px rgba(0,0,0,.55), 0 0 24px rgba(134,0,56,.20);
+    }
+    .media-capbar{
+      padding:10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      border-top-left-radius:14px; border-top-right-radius:14px;
+      background:rgba(0,0,0,.85);
+      color:#fff; font-weight:800; font-size:clamp(13px,1.2vw,15px); line-height:1.4;
+      text-align:left; /* left aligned */
+    }
+    .media-content{
+      display:grid; place-items:center; padding:12px;
+    }
+    .media-content img, .media-content video{
+      display:block; max-width:100%; max-height:72vh; border-radius:10px;
+    }
+
+    /* kill any legacy caption blocks/overlays */
+    .media-caption, #infoTitle, #infoDesc, #infoCaption{ display:none !important; }
+
+    /* Stop background scrolling when modal is open */
+    body.modal-open{ overflow:hidden; }
+
+    @media (max-width:820px){
+      #infoModal .nx-dialog{ grid-template-columns:1fr; grid-template-rows:auto 1fr; }
+      #infoModal .nx-body{ grid-row:1; }
+      #infoMedia{ grid-row:2; }
+      #infoThumbs{ flex-direction:row; scroll-snap-type:x proximity; }
+      #infoThumbs .t{ width:160px; height:82px; scroll-snap-align:center; }
+    }
+
+    /* === FINAL TOUCHES === */
+
+    /* Right panel: let the frame use full column height so borders never clip */
+    #infoMedia{
+      display:grid;
+      grid-template-rows: 1fr;          /* one row; the frame fills it */
+      align-items: stretch;              /* frame spans full height */
+      justify-items: center;
+      padding: 18px;                     /* small breathing room */
+    }
+
+    .media-frame{
+      width: min(1100px, 96%);
+      height: 100%;                      /* fill right column height */
+      display: flex; flex-direction: column;
+      background:#000; border-radius:14px;
+
+      /* even stroke on all 4 sides + subtle outer Fordham ring */
+      border: 1px solid rgba(255,255,255,.18);
+      outline: 1px solid rgba(255,255,255,.08);   /* backup stroke for sub-pixel cases */
+      outline-offset: -1px;
+      box-shadow: 0 0 0 1px rgba(134,0,56,.30),
+                  0 10px 28px rgba(0,0,0,.55),
+                  0 0 24px rgba(134,0,56,.20);
+    }
+
+    /* caption stays inside the box at the top, left-aligned */
+    .media-capbar{
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      border-top-left-radius:14px; border-top-right-radius:14px;
+      background: rgba(0,0,0,.85);
+      color:#fff; font-weight:800; font-size:clamp(13px,1.2vw,15px); line-height:1.4;
+      text-align: left;
+    }
+
+    /* the image/video scales to the remaining space below the caption */
+    .media-content{
+      flex: 1 1 0;
+      min-height: 0;                      /* allow flex child to shrink without overflow */
+      display: grid; place-items: center;
+      padding: 12px;
+    }
+    .media-content img,
+    .media-content video{
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      display: block;
+    }
+
+    /* Rail title: slightly brighter Fordham + subtle lift for readability */
+    #railFooter .rail-title{
+      color: #b40f58;                     /* brighter Fordham */
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+    }
+
+    /* --- Force Info Modal to ignore the global .nx-media 16:9 rule --- */
+    #infoModal #infoMedia,
+    #infoModal .nx-media#infoMedia {
+      aspect-ratio: auto !important;
+      background: transparent !important;
+      display: block !important;
+      padding: 0 !important;
+    }
+
+    /* Right column layout: frame fills the column; caption inside the frame */
+    #infoMedia {
+      display: grid;
+      grid-template-rows: 1fr;         /* the frame will fill all available height */
+      align-items: stretch;
+      justify-items: center;
+      padding: 18px;
+    }
+
+    /* Even 1px stroke on all 4 sides + Fordham ring, no clipping */
+    .media-frame{
+      width: min(1100px, 96%);
+      height: 100%;
+      display: flex; flex-direction: column;
+      background: #000; border-radius: 14px;
+
+      /* physical border + backup outline (prevents right-edge loss on subpixel layouts) */
+      border: 1px solid rgba(255,255,255,.18);
+      outline: 1px solid rgba(255,255,255,.08);
+      outline-offset: -1px;
+
+      /* maroon ring + depth */
+      box-shadow:
+        0 0 0 1px rgba(134,0,56,.30),
+        0 10px 28px rgba(0,0,0,.55),
+        0 0 24px rgba(134,0,56,.20);
+    }
+
+    /* Caption bar INSIDE the frame (top, left-aligned) */
+    .media-capbar{
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      border-top-left-radius: 14px;
+      border-top-right-radius: 14px;
+      background: rgba(0,0,0,.85);
+      color: #fff; font-weight: 800; line-height: 1.4;
+      font-size: clamp(13px,1.2vw,15px);
+      text-align: left;
+    }
+
+    .media-content{
+      flex: 1 1 0; min-height: 0;
+      display: grid; place-items: center;
+      padding: 12px;
+    }
+    .media-content img, .media-content video{
+      max-width: 100%; max-height: 100%;
+      border-radius: 10px; display: block;
+    }
+
+    /* Kill any leftover overlay caption rules */
+    #captionBar, .media-caption { display: none !important; }
+
+    /* Rail title a touch brighter */
+    #railFooter .rail-title{
+      color: #b40f58;       /* brighter Fordham */
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+    }
+
+    /* Caption bar: Fordham gradient + white text */
+    .media-capbar{
+      background: linear-gradient(135deg,#a10e4d 0%, #860038 60%, #4a001f 100%) !important;
+      color:#fff !important;
+      border-bottom: 1px solid rgba(255,255,255,.18);
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+      box-shadow: 0 6px 16px rgba(0,0,0,.35), 0 0 0 1px rgba(134,0,56,.28) inset;
+    }
+
+    /* Optional: subtle left accent stripe */
+    .media-capbar::before{
+      content:""; display:block; position:absolute; left:0; top:0; bottom:0; width:4px;
+      border-top-left-radius:14px; border-bottom-left-radius:0;
+      background: rgba(255,255,255,.18);
+    }
+    #infoThumbs{display:flex!important;flex-direction:column!important;gap:12px!important;padding:14px!important;overscroll-behavior:contain!important}#infoThumbs .t{width:100%;aspect-ratio:16/9;height:auto!important;border-radius:18px!important;border:1px solid rgba(255,255,255,.12);background:#0e0e0e;overflow:hidden}#infoThumbs .t img{width:100%;height:100%;object-fit:contain!important;padding:6px;background:#000;border-radius:14px}.media-frame{border-radius:18px!important;border:1px solid rgba(255,255,255,.18)!important;outline:1px solid rgba(255,255,255,.08)!important;outline-offset:-1px!important;box-shadow:0 0 0 1px rgba(134,0,56,.30),0 10px 28px rgba(0,0,0,.55),0 0 24px rgba(134,0,56,.20)!important}.media-content{padding:14px!important}.media-content img,.media-content video{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain!important;border-radius:14px!important}.media-capbar{background:linear-gradient(135deg,#a10e4d 0%,#860038 60%,#4a001f 100%)!important;color:#fff!important;text-align:left!important;padding:10px 14px!important;border-top-left-radius:18px!important;border-top-right-radius:18px!important;border-bottom:1px solid rgba(255,255,255,.14)!important;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 1px rgba(134,0,56,.28) inset!important}body.modal-open{overflow:hidden!important}
+
+    /* Square corners: thumbs and main media */
+    #infoThumbs .t,
+    .media-frame,
+    .media-content img,
+    .media-content video { border-radius:0 !important; }
+
+    /* Thumbs: show ENTIRE image, add a clean gap, and keep a crisp 1px border */
+    #infoThumbs { gap:12px !important; }                     /* spacing between tiles */
+    #infoThumbs .t { padding:6px; background:#0b0b0b;
+      border:1px solid rgba(255,255,255,.16); }
+    #infoThumbs .t img { width:100%; height:100%;
+      object-fit:contain; background:#000; }
+
+    /* Main media frame: square, even stroke all sides, a subtle Fordham ring */
+    .media-frame{ border-radius:0 !important;
+      border:1px solid rgba(255,255,255,.18);
+      outline:1px solid rgba(255,255,255,.08); outline-offset:-1px;
+      box-shadow:0 0 0 1px rgba(134,0,56,.30), 0 10px 28px rgba(0,0,0,.55), 0 0 24px rgba(134,0,56,.20);
+    }
+
+    /* Caption bar stays square too; Fordham gradient already looks good */
+    .media-capbar{ border-top-left-radius:0 !important; border-top-right-radius:0 !important; }
+
+    /* Give the main image a touch more breathing room */
+    .media-content{ padding:16px !important; }
+
+    #infoThumbs{
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      touch-action: pan-y;      /* natural scroll on trackpads/touch */
+      -webkit-user-select:none;
+      user-select:none;
+    }
+    #infoThumbs img{
+      pointer-events:none;
+      -webkit-user-drag:none;
+      user-drag:none;
+    }
+
+    /* Remove left spacer; keep only a right spacer so the last card doesn't hide under the right arrow */
+    .nx-track{
+      padding-left: 0 !important;
+      padding-right: 56px !important;  /* or 44px if you used that */
+    }
+
+    /* Snap area: reserve space only on the RIGHT for the arrow */
+    .nx-viewport{
+      scroll-padding-left: 0 !important;
+      scroll-padding-right: 56px !important;
+    }
+
+    footer .social-link{display:inline-flex;align-items:center;gap:6px}
+    footer .social-link.li{color:#0A66C2}       /* LinkedIn brand blue */
+    footer .social-link:hover{opacity:.95}
+
+    .nx-poster.is-placeholder{ cursor:default }
+    .nx-poster.is-placeholder:hover{ transform:none; box-shadow:none }
+
+    /* Hide the intro splash when we add .skip-splash to <html> */
+    .skip-splash #splash { display: none !important; }
+
+  </style>
+</head>
+<body>
+<!-- Splash / Intro -->
+<section id="splash" aria-labelledby="gateName" aria-describedby="gateAbout">
+  <!-- Background layer -->
+  <div class="login-bg"></div>
+
+  <!-- Card content -->
+  <div class="gate-card">
+    <img class="gate-avatar" src="assets/profile.jpg" alt="Your photo" />
+    <h1 id="gateName" class="gate-name">Utkarsh Jha</h1>
+    <p class="gate-tagline">MS Artificial Intelligence in Business</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0 16px">
+      <a class="gate-btn" href="assets/resume.pdf" download>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" style="vertical-align:-2px;margin-right:8px;color:#860038">
+          <path fill="currentColor" d="M12 2a2 2 0 0 1 2 2v7.586l2.88-2.88a2 2 0 1 1 2.83 2.83l-6.2 6.2a2 2 0 0 1-2.83 0l-6.2-6.2a2 2 0 1 1 2.83-2.83L10 11.586V4a2 2 0 0 1 2-2zM4 20a2 2 0 0 1 2-2h12a2 2 0 1 1 0 4H6a2 2 0 0 1-2-2z"/>
+        </svg>
+        Download Resume
+      </a>
+    </div>
+    <p id="gateAbout" class="gate-about">We are living in an era where imagination can be transformed into real-time solutions. I aspire to contribute to such game-changing innovations by applying my expertise in AI & Data Science.</p>
+    <button id="enterBtn" class="gate-btn enter-btn">Enter Portfolio</button>
+    </div>
+    <!-- Outside-the-card location pill -->
+    <div class="splash-meta" role="contentinfo">
+      <span class="loc">📍 <span id="introLocation">New York, United States</span></span>
+    </div>
+</section>
+
+  <header class="nx-header">
+    <div class="bar">
+      <div class="nx-logo">PORTFOLIO</div>
+      <nav class="nx-nav">
+        <a href="index.html#intro" id="navHome">Home</a>
+        <a href="skills.html" id="navSkills">Skills</a>
+        <a href="#contact" id="navContact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section id="home" class="nx-hero">
+      <button class="hero-arrow left" id="heroPrev" aria-label="Previous">‹</button>
+      <button class="hero-arrow right" id="heroNext" aria-label="Next">›</button>
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-inner">
+        <h1 id="heroTitle">Featured Project</h1>
+        <p id="heroDesc">A quick line about the selected item.</p>
+        <div class="nx-btns">
+          <button class="nx-btn primary" id="heroPlay">▶ Play Demo</button>
+          <button class="nx-btn secondary" id="heroInfo">See Gallery</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rows -->
+    <section class="nx-section" id="projects">
+      <div class="nx-wrap">
+        <div id="rows"></div>
+      </div>
+    </section>
+
+    <!-- Video Modal -->
+    <div class="nx-modal" id="modal">
+      <div class="nx-dialog">
+        <button class="nx-close" id="closeModal">✕</button>
+        <div class="nx-media" id="modalMedia"></div>
+        <div class="nx-body"><h3 id="modalTitle"></h3><p id="modalDesc"></p></div>
+      </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="nx-modal" id="infoModal">
+    <div class="nx-dialog">
+      <button class="nx-close" id="closeInfo">✕</button>
+      <div id="infoMedia"></div>
+      <div id="infoCaption" style="font-size:15px;color:#bdbdbd;margin:8px 0 0"></div>
+      <div class="nx-body">
+        <h3 id="infoTitle"></h3>
+        <p id="infoDesc"></p>
+        <div id="infoThumbs"></div>
+      </div>
+    </div>
+  </div>
+  </main>
+
+  <footer id="contact">
+    <div style="max-width:1280px;margin:0 auto;padding:0 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
+      <div>© <span id="year"></span> Utkarsh Jha MSAIB</div>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <a href="mailto:uj3@fordham.edu">📩 uj3@fordham.edu</a>
+        <a href="tel:+16465779724">📞 +1 (646) 577‑9724</a>
+        <a href="https://www.linkedin.com/in/utkarsh-jha-05ab00120/"
+          target="_blank" rel="noopener"
+          class="social-link li" aria-label="LinkedIn profile">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-2px">
+            <path fill="currentColor"
+              d="M4.98 3.5A2.48 2.48 0 1 1 0 3.5a2.48 2.48 0 0 1 4.98 0zM0 8h5v16H0V8zm7 0h4.8v2.2h.07C12.53 9.54 13.75 8 16.5 8 20.04 8 21 10.21 21 14.06V24h-5V14.9c0-2.17-.78-3.66-2.74-3.66-1.49 0-2.38 1-2.77 1.96-.14.34-.17.82-.17 1.3V24H7V8z"/>
+          </svg>
+          LinkedIn
+        </a>
+        <a href="https://github.com/Utkarsh-Jha-MSAIB"
+          target="_blank" rel="noopener"
+          class="social-link gh" aria-label="GitHub profile">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-2px">
+            <path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.04c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.3-1.71-1.3-1.71-1.06-.73.08-.72.08-.72 1.17.08 1.79 1.22 1.79 1.22 1.04 1.78 2.73 1.27 3.4.97.11-.76.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.71 0-1.26.45-2.29 1.2-3.1-.12-.29-.52-1.45.11-3.02 0 0 .98-.31 3.21 1.19a11.18 11.18 0 0 1 5.85 0c2.23-1.5 3.21-1.19 3.21-1.19.63 1.57.23 2.73.12 3.02.75.81 1.2 1.84 1.2 3.1 0 4.44-2.69 5.42-5.26 5.71.42.36.8 1.07.8 2.16v3.2c0 .31.21.68.8.56A11.5 11.5 0 0 0 12 .5Z"/>
+          </svg>
+          GitHub
+        </a>
+        <a href="assets/resume.pdf" download>⬇️ Resume</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // Splash
+    const splash = document.getElementById('splash');
+    document.getElementById('enterBtn').addEventListener('click', () => {
+      document.documentElement.classList.add('skip-splash');                // hide via class
+
+      // Optional: if the page was scrolled under the splash, snap back to top
+      requestAnimationFrame(() => window.scrollTo(0, 0));
+    });
+
+    /* ---------- DATA ---------- */
+    const featured = {
+                      id:'NFL',
+                      title:'NFL INSIGHT ASSISTANT',
+                      description:'Agentic RAG pipeline that parses raw NFL play-by-play logs. Predicts opponent tendencies such as popular play types, play calls, formations, personnel information, and more....',
+                      bg:'assets/hero.jpg',
+                      video:{ src:'assets/hero.mp4', poster:'assets/hero.jpg' },
+                      gallery: [
+                        { src:'assets/nfl-Main.jpg', caption:'Landing page of NFL AI Assistant powered by Gemini LLM and Flask based server' },
+                        { src:'assets/nfl-episode1.jpg', caption:'Creating a local server Gemini Powered RAG Pipeline resulted in much higher ownership' },
+                        { src:'assets/nfl-episode2.jpg', caption:'Establishing a Chain-of-Thought to our resulted in more structured responses' },
+                        { src:'assets/nfl-episode3.jpg', caption:'Having the power to update the size of RAG chunks helped in defining usefulness of responses' },
+                        { src:'assets/nfl-episode4.jpg', caption:'Included calendar service to give option to user for interacting with human agent' },
+                        { src:'assets/nfl-episode5.jpg', caption:'Answers from our AI Assistant and ChatGPT (by provided same context) and quite similar' },
+                        { src:'assets/nfl-episode6.jpg', caption:'Requirements for creating the assistant, including modular structure for document processing, calendar requests, etc.' },
+                      ]
+                    };
+    const projects = [
+      {
+        id: 'NLP',
+        title: 'NLP Insights Engine',
+        description: 'Interesting patterns emerge from four popular TV series of last few decades: Friends​, The Office​, The Big Bang Theory & Game of Thrones​',
+        img: 'assets/proj1.jpg',
+        gallery: [
+          { src: 'assets/proj1Main.jpg',  caption: 'Methodology included major NLP techniques from tokenization to novel obscene words analysis' },
+          { src: 'assets/proj1a.jpg',  caption: 'Friends Dialogues Deep Dive' },
+          { src: 'assets/proj1b.jpg', caption: 'Game of Thrones Dialogues Deep Dive' },
+          { src: 'assets/proj1c.jpg', caption: 'The Office Dialogues Deep Dive' },
+          { src: 'assets/proj1d.jpg', caption: 'The Big Bang Theory Dialogues Deep Dive' },
+          { src: 'assets/proj1e.jpg', caption: 'As expected GOT characters slur the most' },
+          { src: 'assets/proj1f.jpg', caption: 'Detailed Character Similarity Matrix across TV Shows' },
+          { src: 'assets/proj1g.jpg', caption: 'Drawing parallels across 4 main characters' },
+          { src: 'assets/proj1h.jpg', caption: 'Relating with IMDB Ratings' },
+        ],
+      },
+      {
+        id: 'ML',
+        title: 'Machine Learning with NYC Crime',
+        description: 'An analysis of New York City crime data (such as reports of shootings) and, using machine learning techniques, attempts to predict which neighborhoods are more unsafe',
+        img: 'assets/proj2.jpg',
+        video: { src: 'assets/proj2.mp4', poster: 'assets/proj2.jpg' },
+        gallery: [
+          { src: 'assets/proj21.jpg',  caption: 'Data used for Clustering: source of creating labels for unsupervised shooting data' },
+          { src: 'assets/proj22.jpg',  caption: 'Data used for Classification: Originally an unsupervised dataset' },
+          { src: 'assets/proj2a.jpg',  caption: 'Multi-step approach including converting unsupervised data to a supervised data' },
+          { src: 'assets/proj2b.jpg', caption: 'Principal Component Analysis helpful in combining similar crime metrices' },
+          { src: 'assets/proj2c.jpg', caption: 'Robust variable selection to ensure all indicators are accurately captured' },
+          { src: 'assets/proj2d.jpg', caption: 'Performed hyperparameter tuning on both XGBoost and Neural Net Models' },
+          { src: 'assets/proj2e.jpg', caption: 'Crime Clusters (Safe/Unsafe) consistent across all 5 boroughs of NYC' },
+          { src: 'assets/proj2f.jpg', caption: 'XGBoost classification showcased slight egde over Neural Nets' },
+          { src: 'assets/proj2g.jpg', caption: 'Trends shows more shooting after 6pm, came up as an important feature as well' },
+          { src: 'assets/proj2h.jpg', caption: 'Key insight: Summers are more notorious for shooting incidents, even validated by media reports' },
+        ],
+      },
+      {
+        id: 'MDCM',
+        title: 'March Data Crunch Madness 2025',
+        description: 'Combining ML and NLP to deliver winning predictions at a Deloitte-judged event',
+        img: 'assets/proj3.jpg',
+        gallery: [
+          { src: 'assets/proj3Main.jpg',  caption: 'Overall Methodology Applied to the NCAA March Madness Predictions' },
+          { src: 'assets/proj3a.jpg', caption: 'Utlizing a novel approach of capturing multi-variable combination possible due to lower size of the datasets' },
+          { src: 'assets/proj3b.jpg', caption: 'Tested over 2000 different model specifications, with XGBoost performing the best' },
+          { src: 'assets/proj3c.jpg', caption: 'Tested the final model specification at yearly level, since we require predictions for year 2025' },
+          { src: 'assets/proj3d.jpg', caption: 'Blended results for all 4 models at different weights with priority given to recency' },
+          { src: 'assets/proj3e.jpg', caption: 'Added NLP based public sentiment scores to adjust the final predictions' },
+          { src: 'assets/proj3f.jpg', caption: 'Public sentiment showcased high preference towards DUKE' },
+          { src: 'assets/proj3g.jpg', caption: 'Correctly predicted final 4, top 2, and the winner' },
+        ],
+      },
+      {
+        id: 'UNHR',
+        title: 'UN HR AI Chatbot',
+        description: 'Powered by Microsoft Copilot, created this chatbot to assist UN staff in quickly finding accurate HR policy information by asking questions in everyday language, without needing to search through documents manually.',
+        img: 'assets/proj4.jpg',
+        video: { src: 'assets/proj4.mp4', poster: 'assets/proj4.jpg' },
+        gallery: [
+          { src: 'assets/proj4Main.jpg',  caption: 'Landing page of our Copilot based Agentic UN HR Chatbot' },
+          { src: 'assets/proj4e.jpg', caption: 'Example topic of Holidays and how we leverage it "Create Generative Answer" function which leads to RAG implementation' },
+          { src: 'assets/proj4f.jpg', caption: 'Instruction and sample knowledge sources including pdfs and website links for our chatbot' },
+          { src: 'assets/proj4a.jpg',  caption: 'Features of our UN HR Chatbot...Part 1' },
+          { src: 'assets/proj4b.jpg', caption: 'Features of our UN HR Chatbot...Part 2' },
+          { src: 'assets/proj4c.jpg', caption: 'Testing Chatbot accuracy with the help of NLP Similarities' },
+          { src: 'assets/proj4d.jpg', caption: 'Sample testing report, SBERT which is most important indicator here shows greater accuracy' },
+        ],
+      },
+      {
+        id: 'AIAYN',
+        title: 'Attention Is All You Need',
+        description: 'What came out of ‘Attention is All You Need’ is the basis for effectively every generative AI company using a large language model. I mean it’s in everything. That’s the most insane thing about it.',
+        img: 'assets/proj5.jpg',
+        gallery: [
+          { src: 'assets/proj5a.jpg', caption: 'Relevance of this paper in our timeline' },
+          { src: 'assets/proj5b.jpg', caption: 'What the paper ended up solving!' },
+          { src: 'assets/proj5c.jpg', caption: 'The Architecture' },
+          { src: 'assets/proj5d.jpg', caption: 'Applying the framework to simple sentence' },
+          { src: 'assets/proj5e.jpg', caption: 'Quantitative foundations of the framework' },
+          { src: 'assets/proj5f.jpg', caption: 'Simulating attention logic on our simple sentence' },
+          { src: 'assets/proj5g.jpg', caption: 'Final output and its interpretation' },
+        ],
+      },
+      {
+        id: 'ETHICS',
+        title: 'Ethics in Public-Facing AI',
+        description: 'The Microsoft-powered NYC’s AI Chatbot says bosses can take workers’ tips and that landlords can discriminate based on source of income',
+        img: 'assets/proj6.jpg',
+        gallery: [
+          { src: 'assets/proj6Main.jpg',  caption: 'An AI-powered chatbot that would provide New Yorkers with information on starting and operating a business in the city' },
+          { src: 'assets/proj6a.jpg', caption: 'We deep dive on the ethical issue with this publicly available chatbot' },
+          { src: 'assets/proj6b.jpg', caption: 'The preexisting bias in such systems' },
+          { src: 'assets/proj6c.jpg', caption: 'The technical bias in such systems' },
+          { src: 'assets/proj6d.jpg', caption: 'The emergent bias in such systems' },
+          { src: 'assets/proj6e.jpg', caption: 'Applying the theory of "Datasheets for Datasets...Part 1' },
+          { src: 'assets/proj6f.jpg', caption: 'Applying the theory of "Datasheets for Datasets...Part 2' },
+          { src: 'assets/proj6g.jpg', caption: 'Applying the theory of "Datasheets for Datasets...Part 3' },
+          { src: 'assets/proj6h.jpg', caption: 'Applying the theory of "Datasheets for Datasets...Part 4' },
+          { src: 'assets/proj6i.jpg', caption: 'Applying the theory of "Datasheets for Datasets...Part 5' },
+          { src: 'assets/proj6j.jpg', caption: 'Applying the theory of "Datasheets for Datasets...Part 6' },
+        ],
+      },
+      {
+        id: 'more',
+        title: 'New work in progress',
+        description: 'New builds are on the way. Check back soon!',
+        // lightweight SVG as the thumbnail so your layout stays intact
+        img: `data:image/svg+xml;utf8,
+          <svg xmlns='http://www.w3.org/2000/svg' width='800' height='450'>
+            <defs>
+              <linearGradient id='g' x1='0' x2='1'>
+                <stop stop-color='%231a0b12'/>
+                <stop offset='1' stop-color='%232f0e1f'/>
+              </linearGradient>
+            </defs>
+            <rect fill='url(%23g)' width='100%' height='100%'/>
+            <text x='50%' y='52%' text-anchor='middle'
+                  fill='%23ffffff' opacity='0.92'
+                  font-family='system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial'
+                  font-size='34' font-weight='800'>
+              Stay tuned…
+            </text>
+          </svg>`
+        // no video, no gallery
+      },
+    ];
+
+    /* ---------- STATE + HERO ---------- */
+    let currentFocus = null;
+    function showFocus(item){
+      currentFocus = item || featured;
+      const bg = (currentFocus.video && currentFocus.video.poster) || currentFocus.img || currentFocus.bg || featured.bg;
+      document.getElementById('heroBg').style.backgroundImage = `url('${bg}')`;
+      document.getElementById('heroTitle').textContent = currentFocus.title || '';
+      document.getElementById('heroDesc').textContent  = currentFocus.description || '';
+      const hasVideo = currentFocus.video && currentFocus.video.src;
+      document.getElementById('heroPlay').style.display = hasVideo ? 'inline-flex' : 'none';
+      renderRows(); // refresh rows to exclude hero from More Projects
+    }
+
+    // Play video modal
+    function play(item){
+      if(!item || !item.video || !item.video.src) return;
+      const modal=document.getElementById('modal');
+      const media=document.getElementById('modalMedia');
+      const mtitle=document.getElementById('modalTitle');
+      const mdesc=document.getElementById('modalDesc');
+      const v=item.video;
+      media.innerHTML = `
+        <video autoplay controls playsinline preload="metadata" ${v.poster ? `poster='${v.poster}'` : ''}>
+          <source src="${v.src}" type="video/mp4">
+        </video>`;
+      mtitle.textContent=item.title||''; mdesc.textContent=item.description||'';
+      modal.classList.add('open');
+    }
+    (function(){
+      const modal=document.getElementById('modal');
+      document.getElementById('closeModal').addEventListener('click',close);
+      modal.addEventListener('click',e=>{ if(e.target===modal) close(); });
+      window.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+      function close(){ modal.classList.remove('open'); document.getElementById('modalMedia').innerHTML=''; }
+    })();
+
+    // Info modal with tiny gallery (poster fallback)
+    function showDetails(item){
+      const modal  = document.getElementById('infoModal');
+      const media  = document.getElementById('infoMedia');
+      const rail   = document.querySelector('#infoModal .nx-body'); // left column
+      const thumbs = document.getElementById('infoThumbs');
+      thumbs.tabIndex = 0;                 // allow keyboard focus
+      thumbs.setAttribute('aria-label','Gallery thumbnails'); 
+
+
+      // Always start at image 1 every time modal opens
+      let idx = 0;
+      const gallery = Array.isArray(item.gallery) && item.gallery.length
+        ? item.gallery
+        : [{ src:(item.video && item.video.poster) || item.bg || item.img, caption:item.title || '' }];
+
+      // Build real footer (below the scroller)
+      let footer = document.getElementById('railFooter');
+      if(!footer){
+        footer = document.createElement('div');
+        footer.id = 'railFooter';
+        footer.innerHTML = `
+          <div id="railTitle" class="rail-title"></div>
+          <div class="rail-count"><span id="railIndex">1</span>/<span id="railTotal">${gallery.length}</span></div>
+        `;
+        rail.appendChild(footer);
+      }
+      footer.querySelector('#railTitle').textContent = item.title || 'Project';
+      footer.querySelector('#railTotal').textContent = String(gallery.length);
+
+      function renderLarge(){
+        const g = gallery[idx];
+        const isVideo = g.src && g.src.endsWith('.mp4');
+
+        media.innerHTML = `
+          <div class="media-frame">
+            <div class="media-capbar">
+              ${g.caption || ''}
+              <a href="${g.src}" target="_blank" rel="noopener" aria-label="Open original"
+                style="float:right;opacity:.9;text-decoration:none;color:#fff">↗</a>
+            </div>
+            <div class="media-content">
+              ${isVideo ? `<video controls playsinline src="${g.src}"></video>`
+                        : `<img src="${g.src}" alt="">`}
+            </div>
+          </div>
+        `;
+        thumbs.querySelectorAll('.t').forEach((n,i)=> n.classList.toggle('active', i===idx));
+        const active = thumbs.children[idx];
+        if (active) active.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' });
+        document.getElementById('railIndex').textContent = String(idx + 1);
+      }
+
+      function renderThumbs(){
+        thumbs.innerHTML = '';
+        gallery.forEach((g,i)=>{
+          const t = document.createElement('div');
+          t.className = 't' + (i===idx ? ' active' : '');
+          t.innerHTML = `<img loading="lazy" src="${g.src}" alt=""><span class="badge">${i+1}</span>`;
+          t.onclick = ()=>{ idx = i; renderLarge(); };
+          t.tabIndex = 0;
+          t.addEventListener('keydown', e=>{
+            if(e.key==='Enter' || e.key===' '){ e.preventDefault(); idx=i; renderLarge(); }
+          });
+          thumbs.appendChild(t);
+        });
+      }
+
+      // Keyboard: Left/Right change slide; Home/End jump; Up/Down left to scroll the rail
+      function onKey(e){
+        if (e.key === 'ArrowRight') {
+          if (idx < gallery.length - 1){ idx++; renderLarge(); e.preventDefault(); }
+        } else if (e.key === 'ArrowLeft') {
+          if (idx > 0){ idx--; renderLarge(); e.preventDefault(); }
+        } else if (e.key === 'Home') {
+          idx = 0; renderLarge(); e.preventDefault();
+        } else if (e.key === 'End') {
+          idx = gallery.length - 1; renderLarge(); e.preventDefault();
+        }
+        // Note: Up/Down not handled here → browser scrolls the rail naturally.
+      }
+
+
+      // Lock page scroll while modal is open + stop scroll bleed from the rail
+      document.body.classList.add('modal-open');
+
+      renderThumbs();
+
+      // Hard reset the thumb scroller to *top/left* every time
+      thumbs.scrollTop = 0; thumbs.scrollLeft = 0;
+      requestAnimationFrame(()=>{ thumbs.scrollTop = 0; thumbs.scrollLeft = 0; });
+
+      renderLarge();
+      modal.classList.add('open');
+      thumbs.focus({ preventScroll: true });  // <-- add this line
+      document.addEventListener('keydown', onKey);
+
+      const closeBtn = document.getElementById('closeInfo');
+      const off = ()=>{
+        document.removeEventListener('keydown', onKey);
+        document.body.classList.remove('modal-open');
+        modal.classList.remove('open');
+      };
+      if (closeBtn) closeBtn.onclick = off;
+      modal.addEventListener('click', e=>{ if(e.target===modal) off(); });
+      window.addEventListener('keydown', e=>{ if(e.key==='Escape') off(); }, { once:true });
+    }
+
+
+
+
+    (function(){ const m=document.getElementById('infoModal'); const c=()=>m.classList.remove('open'); document.getElementById('closeInfo').onclick=c; m.addEventListener('click',e=>{if(e.target===m)c();}); window.addEventListener('keydown',e=>{if(e.key==='Escape')c();}); })();
+
+    // Hero buttons
+    document.getElementById('heroPlay').onclick = ()=> play(currentFocus);
+    document.getElementById('heroInfo').onclick = ()=> showDetails(currentFocus);
+
+    // Build a single row: More Projects (exclude the current hero)
+    function renderRows(){
+      const rowsEl = document.getElementById('rows');
+      rowsEl.innerHTML = '';
+
+      const allItems = [featured, ...projects];
+      const items = allItems.filter(it => !currentFocus || it.id !== currentFocus.id);
+
+      const sec = document.createElement('section');
+      sec.className = 'nx-row';
+      sec.innerHTML = `
+        <h3>More Projects</h3>
+        <div class="nx-trackWrap">
+          <button class="nx-arrow left" aria-label="Previous">‹</button>
+          <div class="nx-viewport"><div class="nx-track"></div></div>
+          <button class="nx-arrow right" aria-label="Next">›</button>
+        </div>`;
+      const wrap   = sec.querySelector('.nx-trackWrap');   // fixed
+      const view   = sec.querySelector('.nx-viewport');    // scrolls
+      const track  = sec.querySelector('.nx-track');
+      const left   = sec.querySelector('.nx-arrow.left');
+      const right  = sec.querySelector('.nx-arrow.right');
+
+      // build cards
+      items.forEach(item=>{
+        const card = document.createElement('div');
+        card.className = 'nx-poster' + (item.id === 'more' ? ' is-placeholder' : '');
+
+        const img = item.img
+          || (item.video && item.video.poster)
+          || item.bg
+          || (item.gallery && item.gallery[0] && item.gallery[0].src)
+          || '';
+
+        card.innerHTML = `
+          <img src="${img}" alt="${item.title || 'Project'}">
+          <div class="nx-overlay"><div><strong>${item.title || ''}</strong></div></div>
+        `;
+
+        // Only interactive for real projects
+        if (item.id !== 'more') {
+          card.addEventListener('click', () => showFocus(item));
+          card.tabIndex = 0;
+          card.addEventListener('keydown', e=>{
+            if(e.key==='Enter' || e.key===' '){ e.preventDefault(); showFocus(item); }
+          });
+        }
+
+        track.appendChild(card);
+      });
+
+      // single-step size = card width + gap
+      const getStep = () => {
+        const c = track.children[0];
+        if(!c) return 0;
+        const w = c.getBoundingClientRect().width;
+        const gap = parseFloat(getComputedStyle(track).gap) || 12;
+        return Math.ceil(w + gap);
+      };
+
+      const scrollOne = dir => view.scrollBy({ left: dir * getStep(), behavior:'smooth' });
+      left.onclick  = () => scrollOne(-1);
+      right.onclick = () => scrollOne(+1);
+
+      // vertical wheel → move one card horizontally
+      view.addEventListener('wheel', e=>{
+        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+          e.preventDefault();
+          scrollOne(e.deltaY > 0 ? +1 : -1);
+        }
+      }, { passive:false });
+
+      // enable/disable arrows at edges
+      function updateArrows(){
+        const max = view.scrollWidth - view.clientWidth - 1;
+        left.disabled  = view.scrollLeft <= 0;
+        right.disabled = view.scrollLeft >= max;
+      }
+      view.addEventListener('scroll', updateArrows, { passive:true });
+      new ResizeObserver(updateArrows).observe(view);
+
+      rowsEl.appendChild(sec);
+      requestAnimationFrame(updateArrows);
+    }
+
+    // Hero cycling across all items (featured + projects)
+    const focusList = [ featured, ...projects.filter(p => p.id !== 'more') ];
+    function focusAt(i){ const idx=(i+focusList.length)%focusList.length; showFocus(focusList[idx]); }
+    document.getElementById('heroPrev').addEventListener('click', ()=>{
+      const i=focusList.findIndex(x=>x.id===currentFocus.id); focusAt(i-1);
+    });
+    document.getElementById('heroNext').addEventListener('click', ()=>{
+      const i=focusList.findIndex(x=>x.id===currentFocus.id); focusAt(i+1);
+    });
+    // Wheel/trackpad gesture on hero
+    const hero=document.getElementById('home');
+    hero.addEventListener('wheel', (e)=>{ if(Math.abs(e.deltaY)>8){ e.preventDefault(); const dir=e.deltaY>0?1:-1; const i=focusList.findIndex(x=>x.id===currentFocus.id); focusAt(i+dir); } }, {passive:false});
+
+    // Init
+    showFocus(featured);
+    // Nav actions
+    document.getElementById('navHome').addEventListener('click',(e)=>{
+      e.preventDefault();
+      // Put #intro in the address bar so refresh stays on the intro.
+      history.replaceState(null, '', 'index.html#intro');
+
+      document.documentElement.classList.remove('skip-splash');
+      document.getElementById('splash').style.display = 'flex';
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    document.getElementById('navContact').addEventListener('click',(e)=>{e.preventDefault(); document.getElementById('contact').scrollIntoView({behavior:'smooth'});});
+  </script>
+  <!-- Fix unwanted scroll restore + allow #home deep-link without touching <head> -->
+  <script>
+  (function () {
+    try { history.scrollRestoration = 'manual'; } catch(e) {}
+
+    const h = location.hash;
+
+    // If we aren't explicitly going to #contact, make sure we start at the very top
+    if (h !== '#contact') {
+      window.scrollTo(0, 0);
+    }
+
+    // Deep-link: index.html#home → hide splash and show hero immediately
+    if (h === '#home') {
+      const splash = document.getElementById('splash');
+      if (splash) splash.style.display = 'none';
+    }
+  })();
+  </script>
+</body>
+</html>
