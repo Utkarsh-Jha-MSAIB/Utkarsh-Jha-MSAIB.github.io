@@ -334,5 +334,28 @@
       } catch (_) {}
     })();
   </script>
+    <script>
+      (function(){
+        const scroller = document.querySelector('#contact > div > div:last-child');
+        const ensureStart = () => { if (scroller) scroller.scrollLeft = 0; };
+      
+        // On load & after layout settles
+        ensureStart();
+        window.addEventListener('load', ensureStart);
+      
+        // When you click “Contact” in either header
+        ['navContact','goContact'].forEach(id=>{
+          const a = document.getElementById(id);
+          if (a) a.addEventListener('click', () => setTimeout(ensureStart, 0));
+        });
+      
+        // Also reset when the footer actually scrolls into view
+        const contact = document.getElementById('contact');
+        if ('IntersectionObserver' in window && contact) {
+          new IntersectionObserver(([e]) => { if (e.isIntersecting) ensureStart(); }, { threshold: 0.2 })
+            .observe(contact);
+        }
+      })();
+      </script>    
 </body>
 </html>

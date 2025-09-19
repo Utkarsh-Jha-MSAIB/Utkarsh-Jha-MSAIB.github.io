@@ -1227,6 +1227,30 @@
       }
     }
 
+    /* --- GALLERY: force main media to be visible on all screens --- */
+    #infoModal .nx-dialog{ height:min(90vh,900px) !important; }
+    #infoMedia{ display:grid !important; place-items:center !important; padding:14px !important; }
+
+    #infoMedia .media-frame{
+      width:min(1100px,96%) !important;
+      max-height:100% !important;
+      display:flex !important; flex-direction:column !important;
+      background:#000 !important; border-radius:12px !important;
+    }
+
+    #infoMedia .media-content{
+      flex:1 1 auto !important; min-height:0 !important;
+      display:grid !important; place-items:center !important;
+      overflow:auto !important;
+    }
+
+    #infoMedia .media-content img,
+    #infoMedia .media-content video{
+      width:auto !important; height:auto !important;
+      max-width:100% !important; max-height:72vh !important;
+      object-fit:contain !important; display:block !important;
+    }
+
   </style>
 </head>
 <body>
@@ -1634,12 +1658,6 @@
       footer.querySelector('#railTotal').textContent = String(gallery.length);
 
       function renderLarge(){
-        // Cleanup previous blob URL if any
-        if (typeof currentObjectURLRevoke === 'function') {
-          try { currentObjectURLRevoke(); } catch(_) {}
-          currentObjectURLRevoke = null;
-        }
-
         const g = gallery[idx];
         const isVideo = g.src && /\.mp4($|\?)/i.test(g.src);
 
@@ -1648,64 +1666,27 @@
             <div class="media-capbar">${g.caption || ''}</div>
             <div class="media-content"></div>
           </div>`;
-        const frame = media.querySelector('.media-frame');
-        const content = frame.querySelector('.media-content');
+        const content = media.querySelector('.media-content');
 
-        // Add loader
-        const loader = buildLoader(isVideo ? 'Loading video…' : 'Loading image…');
-        frame.appendChild(loader.el);
+        if (isVideo) {
+          const v = document.createElement('video');
+          v.controls = true; v.playsInline = true; v.preload = 'metadata';
+          v.src = g.src;
+          content.appendChild(v);
+        } else {
+          const img = new Image();
+          img.alt = ''; img.loading = 'eager'; img.decoding = 'async';
+          img.src = g.src;
+          content.appendChild(img);
+        }
 
-        (async () => {
-          try {
-            const { objectURL, revoke } = await fetchWithProgress(g.src, (p) => {
-              if (p.determinate) loader.update(p.percent, true);
-              else loader.update(0, false);
-            });
-            currentObjectURLRevoke = revoke;
-
-            if (isVideo) {
-              const v = document.createElement('video');
-              v.controls = true; v.playsInline = true; v.preload = 'metadata';
-              v.src = objectURL;
-              v.addEventListener('loadeddata', () => loader.done(), { once:true });
-              v.addEventListener('error', () => loader.done(), { once:true });
-              content.innerHTML=''; content.appendChild(v);
-              v.addEventListener('canplay', () => { try { v.play(); } catch(_){} }, { once:true });
-            } else {
-              const img = document.createElement('img');
-              img.alt = ''; img.loading='eager'; img.decoding='async';
-              img.src = objectURL;
-              img.addEventListener('load',  () => loader.done(), { once:true });
-              img.addEventListener('error', () => loader.done(), { once:true });
-              content.innerHTML=''; content.appendChild(img);
-            }
-          } catch (e) {
-            // Fallback (CORS/opaque): show indeterminate until first frame/data
-            loader.update(0, false);
-            if (isVideo) {
-              const v = document.createElement('video');
-              v.controls = true; v.playsInline = true; v.preload = 'metadata';
-              v.src = g.src;
-              v.addEventListener('loadeddata', () => loader.done(), { once:true });
-              v.addEventListener('error', () => loader.done(), { once:true });
-              content.innerHTML=''; content.appendChild(v);
-            } else {
-              const img = document.createElement('img');
-              img.alt = ''; img.loading='eager'; img.decoding='async';
-              img.src = g.src;
-              img.addEventListener('load',  () => loader.done(), { once:true });
-              img.addEventListener('error', () => loader.done(), { once:true });
-              content.innerHTML=''; content.appendChild(img);
-            }
-          }
-
-          // Keep your existing selection/scroll UI in sync:
-          thumbs.querySelectorAll('.t').forEach((n,i)=> n.classList.toggle('active', i===idx));
-          const active = thumbs.children[idx];
-          if (active) active.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' });
-          document.getElementById('railIndex').textContent = String(idx + 1);
-        })();
+        // keep rail selection in sync
+        thumbs.querySelectorAll('.t').forEach((n,i)=> n.classList.toggle('active', i===idx));
+        const active = thumbs.children[idx];
+        if (active) active.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' });
+        document.getElementById('railIndex').textContent = String(idx + 1);
       }
+
 
       function renderThumbs(){
         thumbs.innerHTML = '';
@@ -1933,5 +1914,28 @@
     }
   })();
   </script>
+    <script>
+      (function(){
+        const scroller = document.querySelector('#contact > div > div:last-child');
+        const ensureStart = () => { if (scroller) scroller.scrollLeft = 0; };
+      
+        // On load & after layout settles
+        ensureStart();
+        window.addEventListener('load', ensureStart);
+      
+        // When you click “Contact” in either header
+        ['navContact','goContact'].forEach(id=>{
+          const a = document.getElementById(id);
+          if (a) a.addEventListener('click', () => setTimeout(ensureStart, 0));
+        });
+      
+        // Also reset when the footer actually scrolls into view
+        const contact = document.getElementById('contact');
+        if ('IntersectionObserver' in window && contact) {
+          new IntersectionObserver(([e]) => { if (e.isIntersecting) ensureStart(); }, { threshold: 0.2 })
+            .observe(contact);
+        }
+      })();
+      </script>    
 </body>
 </html>
