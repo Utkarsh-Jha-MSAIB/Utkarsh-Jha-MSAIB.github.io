@@ -1064,6 +1064,74 @@
       .gate-btn:not(.enter-btn)::after { animation: none !important; }
     }
 
+    /* MOBILE GALLERY FIXES */
+    @media (max-width: 820px){
+      /* Make the modal truly fullscreen on phones */
+      #infoModal{ padding:0 !important; }
+      #infoModal .nx-dialog{
+        width:100vw !important;
+        height:100dvh !important;
+        border-radius:0 !important;
+      }
+
+      /* Give the media area all the space */
+      #infoMedia{ padding:0 !important; }
+      .media-frame{
+        width:100vw !important;
+        height:auto !important;           /* let content size it */
+        border-radius:0 !important;
+        border: none !important;          /* optional: remove frame stroke on mobile */
+        outline: none !important;
+        box-shadow:none !important;
+        background:#000 !important;
+      }
+      .media-content{
+        padding:0 !important;
+        min-height:0 !important;
+        display:grid !important;
+        place-items:center !important;
+        overflow:auto !important;         /* allow scroll if taller than viewport */
+      }
+      .media-content img,
+      .media-content video{
+        width:100% !important;            /* use full width */
+        height:auto !important;
+        max-height:82dvh !important;      /* fill most of the screen */
+        object-fit:contain !important;    /* never crop */
+        border-radius:0 !important;
+        display:block !important;
+      }
+    }
+
+    /* MOBILE: truncate caption to 2 lines with ellipsis */
+    @media (max-width: 820px){
+      .media-capbar{
+        display:-webkit-box !important;
+        -webkit-box-orient:vertical !important;
+        -webkit-line-clamp:2 !important;  /* show 2 lines max */
+        overflow:hidden !important;
+        white-space:normal !important;
+        text-overflow:ellipsis !important;
+      }
+    }
+
+    /* clamp by default (esp. on mobile) */
+    @media (max-width:820px){
+      .media-capbar{
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+    }
+
+    /* when tapped */
+    .media-capbar.expanded{
+      display: block;
+      -webkit-line-clamp: initial;  /* use 'initial' to avoid linter warning */
+      overflow: visible !important;
+    }
+
   </style>
 </head>
 <body>
@@ -1608,6 +1676,12 @@
       modal.addEventListener('click', e=>{ if(e.target===modal) off(); });
       window.addEventListener('keydown', e=>{ if(e.key==='Escape') off(); }, { once:true });
     }
+
+    // tap-to-expand caption
+    document.addEventListener('click', (e) => {
+      const cap = e.target.closest('.media-capbar');
+      if (cap) cap.classList.toggle('expanded');
+    });
 
     // Hero buttons
     document.getElementById('heroPlay').onclick = ()=> play(currentFocus);
