@@ -156,6 +156,36 @@
       .card::after { animation: none !important; }
     }
 
+    /* CONTACT — one horizontal line on phones (same as index) */
+    @media (max-width: 640px){
+      /* Put copyright above, links below */
+      #contact > div{
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+
+      /* Keep all links on one line; allow swipe */
+      #contact > div > div:last-child{
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 12px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        justify-content: center;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+      }
+      #contact > div > div:last-child::-webkit-scrollbar{ display:none; }
+
+      /* Prevent link text from wrapping */
+      #contact > div > div:last-child a{
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+    }
+
   </style>
 </head>
 <body>
