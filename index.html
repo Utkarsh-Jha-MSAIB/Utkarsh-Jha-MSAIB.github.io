@@ -4,6 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Your Name – Portfolio</title>
+  <!-- Redirect reloads from portfolio state back to the intro splash -->
+<script>
+  (function () {
+    var isReload = false;
+    try {
+      var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      isReload = nav ? nav.type === 'reload'
+                     : (performance && performance.navigation && performance.navigation.type === 1);
+    } catch (_) {}
+  
+    var q = new URLSearchParams(location.search);
+    var inPortfolio = (location.hash === '#home') || (q.get('view') === 'portfolio');
+  
+    if (isReload && inPortfolio) {
+      // No hash/query → index shows the intro splash
+      location.replace('index.html');
+    }
+  })();
+  </script>  
   <style>
     :root{--bg:#141414;--ink:#fff;--muted:#d0d0d0;--accent:#e50914}
     *{box-sizing:border-box}
@@ -1357,6 +1376,9 @@
       border-bottom: none !important;
     }
 
+    /* Hide gallery footer (title + 1/8) */
+    #railFooter{ display:none !important; }
+
   </style>
 </head>
 <body>
@@ -1366,7 +1388,8 @@
     if (q.get('view') === 'portfolio') {
       document.documentElement.classList.add('skip-splash'); // hide intro
       // Optional: clean the URL (no reload)
-      history.replaceState(null, '', 'index.html');
+      // new
+      history.replaceState(null, '', 'index.html#home');
       // Guarantee top of page (no anchor jump)
       try { history.scrollRestoration = 'manual'; } catch(e) {}
       window.scrollTo(0, 0);
@@ -1463,8 +1486,8 @@
     <div style="max-width:1280px;margin:0 auto;padding:0 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
       <div>© <span id="year"></span> Utkarsh Jha MSAIB</div>
       <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
-        <a href="mailto:uj3@fordham.edu">📩 uj3@fordham.edu</a>
         <a href="tel:+16465779724">📞 +1 (646) 577‑9724</a>
+        <a href="mailto:uj3@fordham.edu">📩 uj3@fordham.edu</a>
         <a href="https://www.linkedin.com/in/utkarsh-jha-05ab00120/"
           target="_blank" rel="noopener"
           class="social-link li" aria-label="LinkedIn profile">
@@ -1489,14 +1512,54 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* --- helpers to always land at hero/top --- */
+    function closeAllModals(){
+      document.getElementById('modal')?.classList.remove('open');
+      document.getElementById('infoModal')?.classList.remove('open');
+      document.body.classList.remove('modal-open');
+      // clear heavy DOM
+      const mm = document.getElementById('modalMedia'); if (mm) mm.innerHTML = '';
+      const im = document.getElementById('infoMedia');  if (im) im.innerHTML = '';
+    }
+
+    function goPortfolioTop(){
+      // hide the splash immediately
+      document.documentElement.classList.add('skip-splash');
+      const splashEl = document.getElementById('splash');
+      if (splashEl) splashEl.style.display = 'none';
+
+      // set hero content + close any modals
+      try { showFocus(featured); } catch(_) {}
+      closeAllModals();
+
+      // keep clean URL and explicit state
+      history.replaceState(null, '', 'index.html#home');
+
+      // defeat any scroll restoration and “late” layout shifts
+      try { history.scrollRestoration = 'manual'; } catch(e) {}
+
+      // hard reset to absolute top (do it a few times to beat BFCache/layout)
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+      });
+
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+      }, 0);
+    }
+
     // Splash
     const splash = document.getElementById('splash');
-    document.getElementById('enterBtn').addEventListener('click', () => {
-      document.documentElement.classList.add('skip-splash');                // hide via class
-
-      // Optional: if the page was scrolled under the splash, snap back to top
-      requestAnimationFrame(() => window.scrollTo(0, 0));
-    });
+    document.getElementById('enterBtn').addEventListener('click', goPortfolioTop);
 
     /* ---------- DATA ---------- */
     const featured = {
@@ -2056,23 +2119,42 @@
     document.getElementById('navContact').addEventListener('click',(e)=>{e.preventDefault(); document.getElementById('contact').scrollIntoView({behavior:'smooth'});});
   </script>
   <!-- Fix unwanted scroll restore + allow #home deep-link without touching <head> -->
-  <script>
-  (function () {
-    try { history.scrollRestoration = 'manual'; } catch(e) {}
+    <script>
+      (function () {
+        try { history.scrollRestoration = 'manual'; } catch (e) {}
 
-    const h = location.hash;
+        function enterPortfolioFromHash() {
+          const h = location.hash;
 
-    // If we aren't explicitly going to #contact, make sure we start at the very top
-    if (h !== '#contact') {
-      window.scrollTo(0, 0);
-    }
+          // Always force top unless explicitly going to #contact
+          if (h !== '#contact') {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          }
 
-    // Deep-link: index.html#home → hide splash and show hero immediately
-    if (h === '#home') {
-      const splash = document.getElementById('splash');
-      if (splash) splash.style.display = 'none';
-    }
-  })();
-  </script>
+          if (h === '#home') {
+            if (typeof goPortfolioTop === 'function') {
+              goPortfolioTop();
+            } else {
+              document.documentElement.classList.add('skip-splash');
+              const splash = document.getElementById('splash');
+              if (splash) splash.style.display = 'none';
+              // belt-and-suspenders top
+              requestAnimationFrame(() => window.scrollTo(0, 0));
+            }
+          }
+        }
+
+        // normal load/refresh
+        enterPortfolioFromHash();
+
+        // hash changes
+        window.addEventListener('hashchange', enterPortfolioFromHash);
+
+        // BFCache restores (back/forward)
+        window.addEventListener('pageshow', enterPortfolioFromHash);
+      })();
+    </script>      
 </body>
 </html>
