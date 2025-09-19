@@ -97,6 +97,65 @@
     footer .social-link{display:inline-flex;align-items:center;gap:6px}
     footer .social-link.li{color:#0A66C2}
     footer .social-link:hover{opacity:.95}
+
+    /* === Skills: mobile polish & reduced-motion === */
+
+    /* Use flex+gap for chip rows inside cards (replaces margin-based spacing) */
+    .card > div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      margin: 0;                 /* we use gap now */
+      line-height: 1.1;
+      white-space: normal;       /* allow wraps on small screens */
+      overflow-wrap: anywhere;   /* break very long tokens (FAISS/Chroma) */
+    }
+
+    /* Smaller screens (phones & small tablets) */
+    @media (max-width: 820px){
+      main { padding: 22px 14px 40px; }
+      h1 { margin-bottom: 8px; font-size: clamp(22px, 6vw, 32px); }
+      p.muted { font-size: 14px; }
+
+      .grid { gap: 14px; }
+
+      .card {
+        padding: 14px;
+        border-radius: 16px;
+        /* lighter shadow so it feels snappy on mobile GPUs */
+        box-shadow: 0 6px 16px rgba(0,0,0,.45),
+                    0 0 0 1px rgba(134,0,56,.30),
+                    0 0 18px rgba(134,0,56,.18);
+      }
+      .card::after { opacity: .6; }  /* dial down outer ring */
+      .card::before {
+        background: linear-gradient(180deg,
+          rgba(255,255,255,.16) 0%,
+          rgba(255,255,255,.05) 34%,
+          transparent 58%);
+      }
+
+      .pill { padding: 8px 10px; font-size: 13px; }
+
+      /* Header tap targets a bit larger */
+      .bar { height: 56px; padding: 0 12px; }
+      .nx-logo { font-size: 18px; }
+      .nx-nav a { font-size: 13px; margin-left: 12px; }
+    }
+
+    /* Ultra-small phones: add a bit more give */
+    @media (max-width: 360px){
+      .pill { font-size: 12px; padding: 7px 9px; }
+    }
+
+    /* Respect reduced motion: stop the pulsing/ring animations */
+    @media (prefers-reduced-motion: reduce){
+      .card { animation: none !important; }
+      .card::after { animation: none !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -114,7 +173,7 @@
   </header>
 
   <main>
-    <h1>Technical Skiils</h1>
+    <h1>Technical Skills</h1>
     <p class="muted">Production-ready LLMs, NLP, ML, and the data plumbing to ship them</p>
 
     <section class="grid" style="margin-top:16px">

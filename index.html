@@ -812,6 +812,258 @@
     /* Hide the intro splash when we add .skip-splash to <html> */
     .skip-splash #splash { display: none !important; }
 
+    /* ========== MOBILE FIRST TUNE-UPS (≤ 820px) ========== */
+    @media (max-width: 820px){
+
+    /* Splash: keep card inside the screen */
+    #splash { padding: 16px; }
+    .gate-card { max-width: 640px; width: 100%; }
+
+    /* Header: slightly taller tap targets */
+    .bar { height: 56px; padding: 0 12px; }
+    .nx-logo { font-size: 18px; }
+    .nx-nav a { font-size: 13px; margin-left: 12px; }
+
+    /* Hero: shorter, readable, simpler */
+    .nx-hero{
+      min-height: 54vh;
+      padding: 24px 14px 28px;
+      align-items: flex-end;
+    }
+    .hero-inner h1 { font-size: clamp(22px, 6vw, 30px); }
+    .hero-inner p  { font-size: 14px; line-height: 1.5; }
+    .nx-btns { gap: 10px; flex-wrap: wrap; }
+    .nx-btn { padding: 9px 14px; font-size: 14px; }
+    /* Hide big hero arrows on phones (swipe instead) */
+    .hero-arrow { display: none; }
+
+    /* Rows: use 2–3 up instead of 5 up */
+    .nx-track { gap: 10px; padding: 0 14px; }
+    .nx-viewport { scroll-padding-inline: 14px; }
+    .nx-poster{
+      width: calc((100% - 10px)/2);   /* 2-up by default */
+      height: 136px;
+    }
+    /* If landscape or slightly larger phones, allow 3-up */
+    @media (min-width: 420px) and (max-width: 820px){
+      .nx-poster{ width: calc((100% - 10px*2)/3); }
+    }
+    /* Row arrows: smaller & tucked; optional to hide */
+    .nx-arrow { width: 34px; height: 34px; top: auto; bottom: -18px; transform: none; }
+    .nx-arrow.left { left: 10px; }
+    .nx-arrow.right{ right: 10px; }
+
+    /* Footer: single column stack */
+    footer > div { gap: 12px; justify-content: center; }
+
+    /* ===== Info Modal (gallery) — single column ===== */
+    #infoModal { padding: 2vh 2vw; }
+    #infoModal .nx-dialog{
+      grid-template-columns: 1fr !important;
+      grid-template-rows: auto auto 1fr !important; /* header/rail/media */
+      width: 96vw; height: 88vh;
+    }
+    /* Left rail becomes a horizontal scroller of chips under header */
+    #infoModal .nx-body{
+      grid-column: 1; grid-row: 2;
+      background: transparent;
+      border-right: none; box-shadow: none; padding: 0 8px;
+    }
+    #infoThumbs{
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 10px !important;
+      padding: 10px 2px !important;
+      max-height: none !important;
+      height: auto !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scroll-snap-type: x proximity;
+      -webkit-mask-image: none; mask-image: none;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    #infoThumbs .t{
+      width: 44vw; max-width: 260px;
+      height: 76px !important; aspect-ratio: auto;
+      scroll-snap-align: center;
+    }
+    #infoThumbs .t img{ object-fit: cover !important; padding: 0; }
+
+    /* Media area full-width below the rail */
+    #infoMedia{ grid-column: 1; grid-row: 3; padding: 10px; }
+    .media-frame{
+      width: 100%; height: auto; border-radius: 12px !important;
+    }
+    .media-capbar{
+      font-size: 13px !important; padding: 8px 10px !important;
+      border-top-left-radius: 12px !important; border-top-right-radius: 12px !important;
+    }
+    .media-content{ padding: 8px !important; }
+    .media-content img, .media-content video{
+      max-height: 56vh; border-radius: 10px !important;
+    }
+
+    /* Make sure body doesn’t “double scroll” behind modals */
+    body.modal-open{ position: fixed; width: 100%; }
+
+    /* Reduce heavy shadows on mobile to keep it snappy */
+    .nx-header, .media-frame, .gate-card{
+      box-shadow: 0 6px 16px rgba(0,0,0,.4) !important;
+    }
+    }
+
+    /* ========== VERY SMALL PHONES (≤ 360px) ========== */
+    @media (max-width: 360px){
+    .nx-poster { width: 100%; height: 140px; }   /* single-up if needed */
+    .nx-btn { width: 100%; justify-content: center; }
+    .gate-name { font-size: 24px; }
+    }
+
+    /* ===== Splash/Intro: make the card fit perfectly on phones ===== */
+    #splash{
+      min-height: 100dvh;            /* handle mobile browser UI bars */
+      padding: 18px;                 /* breathing room on tiny screens */
+      align-items: center;
+      justify-content: center;
+    }
+    #splash .login-bg{
+      background-position: center;
+      background-size: cover;
+      filter: brightness(.55);
+    }
+
+    /* Card sizing + softer glow on mobile */
+    @media (max-width: 820px){
+      .gate-card{
+        width: min(92vw, 560px);
+        max-width: 560px;
+        padding: 18px;
+        border-radius: 16px;
+        box-shadow: 0 8px 22px rgba(0,0,0,.45);        /* lighter shadow */
+      }
+      /* dial down animated outer ring for small devices (perf + aesthetics) */
+      .gate-card::after{ opacity:.6 }
+      .gate-card::before{
+        background: linear-gradient(180deg,
+          rgba(255,255,255,.18) 0%,
+          rgba(255,255,255,.06) 34%,
+          transparent 58%);
+      }
+
+      /* Elements inside the card scale down a touch */
+      .gate-avatar{ width:120px; height:120px; }
+      .gate-name{ font-size:24px; margin:10px 0 2px; }
+      .gate-tagline{ font-size:12px; letter-spacing:.06em; }
+      .gate-about{
+        font-size:14px; line-height:1.55; margin:10px auto 14px;
+        max-width: 62ch;
+      }
+
+      /* Buttons: comfortable tap targets; can stack if needed */
+      .gate-btn{ padding:10px 14px; font-size:14px; border-radius:12px; }
+      .enter-btn{ padding:12px 18px; font-size:15px; border-radius:999px; }
+    }
+
+    /* Location pill: tuck neatly on small screens */
+    @media (max-width: 480px){
+      .splash-meta{
+        left: 12px; right: 12px; bottom: 12px; transform:none;
+        justify-content: center;
+      }
+    }
+
+    /* Footer links: stack on phones */
+    @media (max-width: 600px){
+      footer > div{ justify-content:center; gap: 10px; }
+    }
+
+    /* ===== Gallery modal: ensure it opens above everything & fits phones ===== */
+    #infoModal{ z-index: 10000; padding: 2vh 2vw; }
+    #infoModal .nx-dialog{
+      width: min(100vw, 960px);
+      height: min(90dvh, 900px);
+    }
+
+    /* Phone layout: header → horizontal thumbs → media */
+    @media (max-width: 820px){
+      #infoModal .nx-dialog{
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto auto 1fr !important;
+      }
+      #infoModal .nx-body{
+        grid-column:1; grid-row:2;
+        background: transparent; border-right:none; box-shadow:none; padding:0 8px;
+      }
+      #infoThumbs{
+        display:flex !important; flex-direction:row !important;
+        gap:10px !important; padding:10px 2px !important;
+        height:auto !important; max-height:none !important;
+        overflow-x:auto !important; overflow-y:hidden !important;
+        scroll-snap-type:x proximity;
+        -webkit-overflow-scrolling: touch;
+        border-top:1px solid rgba(255,255,255,.10);
+      }
+      #infoThumbs .t{ width:44vw; max-width:260px; height:76px !important; scroll-snap-align:center; }
+      #infoThumbs .t img{ object-fit:cover !important; padding:0; }
+
+      #infoMedia{ grid-column:1; grid-row:3; padding:10px; }
+      .media-frame{ width:100%; border-radius:12px !important; }
+      .media-capbar{ font-size:13px !important; padding:8px 10px !important; }
+      .media-content{ padding:8px !important; }
+      .media-content img, .media-content video{ max-height:56vh; border-radius:10px !important; }
+    }
+
+    /* When modal is open on mobile, freeze the background to stop “page drag” */
+    @media (max-width: 820px){
+      body.modal-open{ position: fixed; width: 100%; }
+    }
+
+    /* ===== Fordham 0→100 loader for gallery media ===== */
+    .media-frame{ position:relative; }
+    .loader-overlay{
+      position:absolute; inset:0; display:grid; place-items:center;
+      background:rgba(10,10,10,.72); backdrop-filter:blur(4px); z-index:10;
+    }
+    .loader-card{
+      min-width:220px; max-width:80%; padding:14px 16px; border-radius:14px;
+      background:linear-gradient(180deg,rgba(20,20,20,.9),rgba(20,20,20,.8));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 26px rgba(0,0,0,.45), 0 0 24px rgba(134,0,56,.24);
+      color:#fff; text-align:center;
+    }
+    .loader-title{ font-weight:900; margin-bottom:6px; font-size:14px; letter-spacing:.04em; opacity:.95; }
+    .loader-bar{
+      height:10px; border-radius:999px; overflow:hidden;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); position:relative;
+    }
+    .loader-fill{
+      --p:0%;
+      width:var(--p); height:100%;
+      background:linear-gradient(135deg,#a10e4d 0%, #860038 60%, #4a001f 100%);
+      box-shadow:0 0 16px rgba(134,0,56,.35) inset;
+      transition:width .15s linear;
+    }
+    .loader-percent{ margin-top:8px; font-weight:800; font-size:12px; opacity:.95; }
+
+    /* Indeterminate fallback when Content-Length missing */
+    .loader-fill.indeterminate{
+      width:30%;
+      animation:indet 1.1s ease-in-out infinite;
+    }
+    @keyframes indet{
+      0%{transform:translateX(-40%);} 50%{transform:translateX(120%);} 100%{transform:translateX(-40%);}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .gate-card,
+      .gate-card::after { animation: none !important; }
+
+      /* optional: also calm button shine/hover motion */
+      .gate-btn,
+      .enter-btn { transition: none !important; }
+      .gate-btn:not(.enter-btn)::after { animation: none !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -1134,12 +1386,66 @@
       function close(){ modal.classList.remove('open'); document.getElementById('modalMedia').innerHTML=''; }
     })();
 
+    // Lazy-load hint is handled in markup changes below.
+    // Progress loader helpers:
+
+    async function fetchWithProgress(url, onProgress){
+      const res = await fetch(url, { mode:'cors' });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const total = Number(res.headers.get('Content-Length')) || 0;
+
+      const reader = res.body?.getReader?.();
+      if(!reader){
+        const blob = await res.blob();
+        onProgress?.({ loaded:1, total:1, percent:100, determinate:false });
+        const objectURL = URL.createObjectURL(blob);
+        return { objectURL, revoke:()=>URL.revokeObjectURL(objectURL) };
+      }
+
+      let loaded = 0; const chunks = [];
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+        chunks.push(value);
+        loaded += value.byteLength;
+        const percent = total ? Math.min(100, Math.round(loaded/total*100)) : 0;
+        onProgress?.({ loaded, total, percent, determinate:!!total });
+      }
+      const blob = new Blob(chunks);
+      const objectURL = URL.createObjectURL(blob);
+      return { objectURL, revoke:()=>URL.revokeObjectURL(objectURL) };
+    }
+
+    function buildLoader(label){
+      const overlay = document.createElement('div');
+      overlay.className = 'loader-overlay';
+      overlay.innerHTML = `
+        <div class="loader-card">
+          <div class="loader-title">${label || 'Loading…'}</div>
+          <div class="loader-bar"><div class="loader-fill" style="--p:0%"></div></div>
+          <div class="loader-percent" aria-live="polite">0%</div>
+        </div>`;
+      const fill = overlay.querySelector('.loader-fill');
+      const pct  = overlay.querySelector('.loader-percent');
+      return {
+        el: overlay,
+        update(p, determinate=true){
+          if(!determinate){ fill.classList.add('indeterminate'); pct.textContent='…'; return; }
+          fill.classList.remove('indeterminate');
+          fill.style.setProperty('--p', `${p}%`);
+          pct.textContent = `${p}%`;
+        },
+        done(){ overlay.remove(); }
+      };
+    }
+
     // Info modal with tiny gallery (poster fallback)
     function showDetails(item){
       const modal  = document.getElementById('infoModal');
       const media  = document.getElementById('infoMedia');
       const rail   = document.querySelector('#infoModal .nx-body'); // left column
       const thumbs = document.getElementById('infoThumbs');
+      let currentObjectURLRevoke = null; // put near showDetails scope
       thumbs.tabIndex = 0;                 // allow keyboard focus
       thumbs.setAttribute('aria-label','Gallery thumbnails'); 
 
@@ -1165,26 +1471,77 @@
       footer.querySelector('#railTotal').textContent = String(gallery.length);
 
       function renderLarge(){
+        // Cleanup previous blob URL if any
+        if (typeof currentObjectURLRevoke === 'function') {
+          try { currentObjectURLRevoke(); } catch(_) {}
+          currentObjectURLRevoke = null;
+        }
+
         const g = gallery[idx];
-        const isVideo = g.src && g.src.endsWith('.mp4');
+        const isVideo = g.src && /\.mp4($|\?)/i.test(g.src);
 
         media.innerHTML = `
           <div class="media-frame">
-            <div class="media-capbar">
-              ${g.caption || ''}
-              <a href="${g.src}" target="_blank" rel="noopener" aria-label="Open original"
-                style="float:right;opacity:.9;text-decoration:none;color:#fff">↗</a>
-            </div>
-            <div class="media-content">
-              ${isVideo ? `<video controls playsinline src="${g.src}"></video>`
-                        : `<img src="${g.src}" alt="">`}
-            </div>
-          </div>
-        `;
-        thumbs.querySelectorAll('.t').forEach((n,i)=> n.classList.toggle('active', i===idx));
-        const active = thumbs.children[idx];
-        if (active) active.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' });
-        document.getElementById('railIndex').textContent = String(idx + 1);
+            <div class="media-capbar">${g.caption || ''}</div>
+            <div class="media-content"></div>
+          </div>`;
+        const frame = media.querySelector('.media-frame');
+        const content = frame.querySelector('.media-content');
+
+        // Add loader
+        const loader = buildLoader(isVideo ? 'Loading video…' : 'Loading image…');
+        frame.appendChild(loader.el);
+
+        (async () => {
+          try {
+            const { objectURL, revoke } = await fetchWithProgress(g.src, (p) => {
+              if (p.determinate) loader.update(p.percent, true);
+              else loader.update(0, false);
+            });
+            currentObjectURLRevoke = revoke;
+
+            if (isVideo) {
+              const v = document.createElement('video');
+              v.controls = true; v.playsInline = true; v.preload = 'metadata';
+              v.src = objectURL;
+              v.addEventListener('loadeddata', () => loader.done(), { once:true });
+              v.addEventListener('error', () => loader.done(), { once:true });
+              content.innerHTML=''; content.appendChild(v);
+              v.addEventListener('canplay', () => { try { v.play(); } catch(_){} }, { once:true });
+            } else {
+              const img = document.createElement('img');
+              img.alt = ''; img.loading='eager'; img.decoding='async';
+              img.src = objectURL;
+              img.addEventListener('load',  () => loader.done(), { once:true });
+              img.addEventListener('error', () => loader.done(), { once:true });
+              content.innerHTML=''; content.appendChild(img);
+            }
+          } catch (e) {
+            // Fallback (CORS/opaque): show indeterminate until first frame/data
+            loader.update(0, false);
+            if (isVideo) {
+              const v = document.createElement('video');
+              v.controls = true; v.playsInline = true; v.preload = 'metadata';
+              v.src = g.src;
+              v.addEventListener('loadeddata', () => loader.done(), { once:true });
+              v.addEventListener('error', () => loader.done(), { once:true });
+              content.innerHTML=''; content.appendChild(v);
+            } else {
+              const img = document.createElement('img');
+              img.alt = ''; img.loading='eager'; img.decoding='async';
+              img.src = g.src;
+              img.addEventListener('load',  () => loader.done(), { once:true });
+              img.addEventListener('error', () => loader.done(), { once:true });
+              content.innerHTML=''; content.appendChild(img);
+            }
+          }
+
+          // Keep your existing selection/scroll UI in sync:
+          thumbs.querySelectorAll('.t').forEach((n,i)=> n.classList.toggle('active', i===idx));
+          const active = thumbs.children[idx];
+          if (active) active.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' });
+          document.getElementById('railIndex').textContent = String(idx + 1);
+        })();
       }
 
       function renderThumbs(){
@@ -1192,7 +1549,8 @@
         gallery.forEach((g,i)=>{
           const t = document.createElement('div');
           t.className = 't' + (i===idx ? ' active' : '');
-          t.innerHTML = `<img loading="lazy" src="${g.src}" alt=""><span class="badge">${i+1}</span>`;
+          t.innerHTML = `<img loading="lazy" decoding="async" src="${g.src}" alt="">
+               <span class="badge">${i+1}</span>`;
           t.onclick = ()=>{ idx = i; renderLarge(); };
           t.tabIndex = 0;
           t.addEventListener('keydown', e=>{
@@ -1233,23 +1591,43 @@
 
       const closeBtn = document.getElementById('closeInfo');
       const off = ()=>{
+        // Revoke the current object URL (if any) to avoid memory leaks
+        if (typeof currentObjectURLRevoke === 'function') {
+          try { currentObjectURLRevoke(); } catch(_) {}
+          currentObjectURLRevoke = null;
+        }
+
         document.removeEventListener('keydown', onKey);
         document.body.classList.remove('modal-open');
         modal.classList.remove('open');
+        // Optional: clear media DOM to free memory a bit sooner
+        media.innerHTML = '';
       };
+
       if (closeBtn) closeBtn.onclick = off;
       modal.addEventListener('click', e=>{ if(e.target===modal) off(); });
       window.addEventListener('keydown', e=>{ if(e.key==='Escape') off(); }, { once:true });
     }
 
-
-
-
-    (function(){ const m=document.getElementById('infoModal'); const c=()=>m.classList.remove('open'); document.getElementById('closeInfo').onclick=c; m.addEventListener('click',e=>{if(e.target===m)c();}); window.addEventListener('keydown',e=>{if(e.key==='Escape')c();}); })();
-
     // Hero buttons
     document.getElementById('heroPlay').onclick = ()=> play(currentFocus);
     document.getElementById('heroInfo').onclick = ()=> showDetails(currentFocus);
+
+    // Add this robustness block immediately after:
+    (() => {
+      const btn = document.getElementById('heroInfo');
+      if (!btn) return;
+
+      const open = (e) => { e.preventDefault(); e.stopPropagation(); showDetails(currentFocus); };
+
+      // Support all common input types and prevent passive touch from swallowing it
+      ['click','pointerup','touchend','keydown'].forEach(evt => {
+        btn.addEventListener(evt, (e) => {
+          if (evt === 'keydown' && !(e.key === 'Enter' || e.key === ' ')) return;
+          open(e);
+        }, { passive:false });
+      });
+    })();
 
     // Build a single row: More Projects (exclude the current hero)
     function renderRows(){
@@ -1286,7 +1664,8 @@
           || '';
 
         card.innerHTML = `
-          <img src="${img}" alt="${item.title || 'Project'}">
+        <img src="${img}" alt="${item.title || 'Project'}"
+          loading="lazy" decoding="async" fetchpriority="low">
           <div class="nx-overlay"><div><strong>${item.title || ''}</strong></div></div>
         `;
 
@@ -1315,13 +1694,16 @@
       left.onclick  = () => scrollOne(-1);
       right.onclick = () => scrollOne(+1);
 
-      // vertical wheel → move one card horizontally
-      view.addEventListener('wheel', e=>{
-        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
-          e.preventDefault();
-          scrollOne(e.deltaY > 0 ? +1 : -1);
-        }
-      }, { passive:false });
+      // Only apply wheel→horizontal scroll on non-touch pointers
+      const isTouch = matchMedia('(pointer: coarse)').matches;
+      if (!isTouch) {
+        view.addEventListener('wheel', e=>{
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            scrollOne(e.deltaY > 0 ? +1 : -1);
+          }
+        }, { passive:false });
+      }
 
       // enable/disable arrows at edges
       function updateArrows(){
@@ -1359,7 +1741,7 @@
 
       document.documentElement.classList.remove('skip-splash');
       document.getElementById('splash').style.display = 'flex';
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     });
     document.getElementById('navContact').addEventListener('click',(e)=>{e.preventDefault(); document.getElementById('contact').scrollIntoView({behavior:'smooth'});});
   </script>
